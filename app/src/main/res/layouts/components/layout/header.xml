@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="150dp">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="110dp"
+            android:background="@color/md_black_1000">
+
+            <me.williandrade.util.TopCropImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.3"
+                android:src="@drawable/imguser" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="89dp"
+            android:layout_height="89dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/circleView"
+                android:layout_width="89dp"
+                android:layout_height="89dp"
+                android:src="@drawable/imguser" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:src="@drawable/edit_login" />
+        </FrameLayout>
+
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.87"
+            android:text="Akash Bangad"
+            android:textAlignment="center"
+            android:textColor="@color/md_black_1000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/credits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="40 Credits"
+            android:textAlignment="center"
+            android:textColor="@color/md_black_1000"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</RelativeLayout>

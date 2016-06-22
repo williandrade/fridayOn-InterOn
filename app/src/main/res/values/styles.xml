@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+
+
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+
+        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+
+        <item name="android:colorControlNormal">@color/md_white_1000</item>
+
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="colorControlNormal">@color/md_white_1000</item>
+    </style>
+
+    <style name="LoginText" parent="android:Widget.EditText">
+        <item name="android:colorControlNormal">@color/md_white_1000</item>
+        <item name="android:textColorHint">@color/md_white_1000</item>
+        <item name="android:colorAccent">@color/colorPrimary</item>
+        <item name="android:lines">1</item>
+
+        <item name="colorControlNormal">@color/md_white_1000</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+</resources>

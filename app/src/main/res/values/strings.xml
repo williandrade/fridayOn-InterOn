@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">FridayOn</string>
+    <!-- Login-->
+    <string name="email">E-mail</string>
+    <string name="password">Password</string>
+    <string name="sing_up">Sing Up</string>
+    <string name="sing_in">Sing In</string>
+    <string name="forgot_pass">Forgot your password?</string>
+    <string name="connect">Connect</string>
+
+
+    <string name="openDrawer">Open</string>
+    <string name="closeDrawer">Close</string>
+</resources>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#292A2E"
+    tools:context=".activity.IncomingCallScreenActivity">
+
+
+    <!--<ImageView-->
+    <!--android:id="@+id/imageCallScreen"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:alpha="0.3"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:contentDescription="User Pic"-->
+    <!--android:src="@drawable/imguser" />-->
+
+    <LinearLayout
+        android:id="@+id/imageIncommingCallScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:orientation="horizontal"></LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center|bottom"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/nameIncommingCallScreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-thin"
+                android:text="Tema"
+                android:textColor="@color/md_white_1000"
+                android:textSize="64dp" />
+
+            <TextView
+                android:id="@+id/functionCallScreem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-thin"
+                android:text="English - Korean"
+                android:textColor="@color/md_white_1000"
+                android:textSize="15dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/refuseCallBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="80dp"
+                android:clickable="true"
+                android:src="@drawable/refuse_call" />
+
+            <ImageView
+                android:id="@+id/acceptCallBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:src="@drawable/accept_call" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</FrameLayout>

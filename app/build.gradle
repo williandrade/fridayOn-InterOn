@@ -43,7 +43,7 @@ dependencies {
 
     compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
 
-    compile files('/Users/williamandrade/Documents/TCC/FridayOn/libs/sinch-android-rtc-3.9.5/sinch-android-rtc-3.9.5.jar')
+    compile files('libs/sinch-android-rtc-3.9.6.jar')
 }
 
 apply plugin: 'com.google.gms.google-services'

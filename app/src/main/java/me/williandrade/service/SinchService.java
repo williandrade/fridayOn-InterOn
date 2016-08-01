@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import me.williandrade.activity.IncomingCallScreenActivity;
+import me.williandrade.dto.UserDTO;
 
 public class SinchService extends Service {
 
@@ -31,7 +32,7 @@ public class SinchService extends Service {
 
     private SinchServiceInterface mSinchServiceInterface = new SinchServiceInterface();
     private SinchClient mSinchClient;
-    private FirebaseUser user;
+    private UserDTO user = new UserDTO();
 
     private StartFailedListener mListener;
 
@@ -48,7 +49,7 @@ public class SinchService extends Service {
         super.onDestroy();
     }
 
-    private void start(FirebaseUser user) {
+    private void start(UserDTO user) {
         if (mSinchClient == null) {
             this.user = user;
             mSinchClient = Sinch.getSinchClientBuilder().context(getApplicationContext()).userId(user.getUid())
@@ -90,7 +91,7 @@ public class SinchService extends Service {
             return mSinchClient.getCallClient().callUserVideo(userId);
         }
 
-        public FirebaseUser getUser() {
+        public UserDTO getUser() {
             return user;
         }
 
@@ -99,7 +100,17 @@ public class SinchService extends Service {
         }
 
         public void startClient(FirebaseUser user) {
-            start(user);
+            UserDTO userDTO = new UserDTO();
+
+            userDTO.setUid(user.getUid());
+            userDTO.setDisplayName(user.getDisplayName());
+            userDTO.setDoing("Testing - App");
+            userDTO.setEmail(user.getEmail());
+            if (user.getPhotoUrl() != null) {
+                userDTO.setPhoto(user.getPhotoUrl().toString());
+            }
+
+            start(userDTO);
         }
 
         public void stopClient() {
@@ -115,9 +126,9 @@ public class SinchService extends Service {
         }
 
         public VideoController getVideoController() {
-            if (!isStarted()) {
-                return null;
-            }
+//            if (!isStarted()) {
+//                return null;
+//            }
             return mSinchClient.getVideoController();
         }
 

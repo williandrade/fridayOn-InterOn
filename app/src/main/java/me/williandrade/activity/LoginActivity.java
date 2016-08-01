@@ -25,7 +25,7 @@ import me.williandrade.service.SinchService;
 import me.williandrade.util.BaseActivity;
 import me.williandrade.util.Helper;
 
-public class LoginActivity extends BaseActivity implements SinchService.StartFailedListener {
+public class LoginActivity extends BaseActivity {
 
     private EditText inputEmail;
     private EditText inputPassword;
@@ -54,17 +54,6 @@ public class LoginActivity extends BaseActivity implements SinchService.StartFai
         setOnClicks();
 
     }
-
-    @Override
-    public void onStartFailed(SinchError error) {
-        Toast.makeText(this, error.toString(), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onStarted() {
-        openPlaceCallActivity();
-    }
-
 
     public void singIn() {
         String email = inputEmail.getText().toString();
@@ -122,7 +111,7 @@ public class LoginActivity extends BaseActivity implements SinchService.StartFai
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    new Helper().setEditTextFocus(inputPassword, true, getBaseContext());
+                    Helper.setEditTextFocus(inputPassword, true, getBaseContext());
                     return true;
                 }
                 return false;
@@ -183,7 +172,7 @@ public class LoginActivity extends BaseActivity implements SinchService.StartFai
         userDTO.setDisplayName(user.getDisplayName());
         userDTO.setDoing("Testing - App");
         userDTO.setEmail(user.getEmail());
-        if(user.getPhotoUrl() != null){
+        if (user.getPhotoUrl() != null) {
             userDTO.setPhoto(user.getPhotoUrl().toString());
         }
 

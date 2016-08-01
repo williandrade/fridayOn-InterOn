@@ -10,6 +10,7 @@ public class UserDTO {
     private String email;
     private String doing;
     private String photo;
+    private Double credits;
 
     public UserDTO() {
     }
@@ -60,5 +61,13 @@ public class UserDTO {
 
     public void setDoing(String doing) {
         this.doing = doing;
+    }
+
+    public Double getCredits() {
+        return credits;
+    }
+
+    public void setCredits(Double credits) {
+        this.credits = credits;
     }
 }

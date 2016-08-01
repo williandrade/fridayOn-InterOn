@@ -5,37 +5,115 @@
     android:layout_height="match_parent"
     android:background="#292A2E"
     tools:context=".activity.CallScreenActivity">
-    
-    <FrameLayout
-        android:id="@+id/localImageCallScreen"
-        android:layout_width="140dp"
-        android:layout_height="185dp"
-        android:layout_gravity="right"
-        android:layout_marginRight="10dp"
-        ></FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/imageCallScreen"
+    <RelativeLayout
+        android:id="@+id/callScreenBackView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.4"
-        android:orientation="horizontal"></LinearLayout>
+        android:orientation="horizontal"></RelativeLayout>
+
 
     <LinearLayout
+        android:id="@+id/callTalkingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:alpha="0"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="32dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.4"
+                    android:maxHeight="14dp"
+                    android:maxWidth="14dp"
+                    android:src="@drawable/live_icon" />
+
+                <TextView
+                    android:id="@+id/callTalkingName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tema"
+                    android:textColor="@color/md_white_1000" />
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/callLocalView"
+                android:layout_width="140dp"
+                android:layout_height="190dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="40dp"
+                android:elevation="5dp"
+                android:orientation="horizontal"></RelativeLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/callTalkingVoiceBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
+                android:src="@drawable/on_voice" />
+
+            <ImageView
+                android:id="@+id/callTalkingCallEndBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:clickable="true"
+                android:minHeight="80dp"
+                android:minWidth="80dp"
+                android:src="@drawable/off_call" />
+
+            <ImageView
+                android:id="@+id/callTalkingVideoBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
+                android:src="@drawable/on_video" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/callView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="1"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:gravity="center|bottom"
             android:orientation="vertical">
 
 
             <TextView
-                android:id="@+id/nameCallScreen"
+                android:id="@+id/callName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-thin"
@@ -44,7 +122,7 @@
                 android:textSize="64dp" />
 
             <TextView
-                android:id="@+id/functionCallScreem"
+                android:id="@+id/callFunction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-thin"
@@ -65,21 +143,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.4"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
                 android:src="@drawable/off_voice" />
 
             <ImageView
-                android:id="@+id/cancelCalllBtn"
+                android:id="@+id/callCancelBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:clickable="true"
+                android:minHeight="80dp"
+                android:minWidth="80dp"
                 android:src="@drawable/off_call" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:alpha="0.4"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
                 android:src="@drawable/off_video" />
         </LinearLayout>
 

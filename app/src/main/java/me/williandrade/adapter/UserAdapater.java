@@ -31,6 +31,7 @@ import java.util.List;
 import me.williandrade.R;
 import me.williandrade.activity.IndexActivity;
 import me.williandrade.dto.UserDTO;
+import me.williandrade.util.Helper;
 
 public class UserAdapater extends RecyclerView.Adapter<UserAdapater.ViewHolder> {
     private List<UserDTO> mDataset;
@@ -76,7 +77,7 @@ public class UserAdapater extends RecyclerView.Adapter<UserAdapater.ViewHolder> 
         }
 
         if (mDataset.get(position).getPhoto() != null) {
-            Bitmap image = loadBitmap(mDataset.get(position).getPhoto());
+            Bitmap image = Helper.loadBitmap(mDataset.get(position).getPhoto());
             holder.userCardPic.setImageBitmap(image);
         }
 
@@ -131,34 +132,4 @@ public class UserAdapater extends RecyclerView.Adapter<UserAdapater.ViewHolder> 
         this.notifyDataSetChanged();
     }
 
-    public Bitmap loadBitmap(String url) {
-        Bitmap bm = null;
-        InputStream is = null;
-        BufferedInputStream bis = null;
-        try {
-            URLConnection conn = new URL(url).openConnection();
-            conn.connect();
-            is = conn.getInputStream();
-            bis = new BufferedInputStream(is, 8192);
-            bm = BitmapFactory.decodeStream(bis);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (bis != null) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return bm;
-    }
 }

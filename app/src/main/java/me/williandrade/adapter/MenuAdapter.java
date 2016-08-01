@@ -1,6 +1,7 @@
 package me.williandrade.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +10,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.net.URI;
-
 import me.williandrade.R;
 import me.williandrade.activity.IndexActivity;
+import me.williandrade.dto.UserDTO;
+import me.williandrade.util.Helper;
 
 public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
@@ -24,8 +25,8 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
     private String name;
 
-    private URI image;
-    private String creditis;
+    private Bitmap image;
+    private String credits;
 
     private Context myContext;
 
@@ -55,7 +56,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
                 Name = (TextView) itemView.findViewById(R.id.name);
                 credits = (TextView) itemView.findViewById(R.id.credits);
                 image = (ImageView) itemView.findViewById(R.id.circleView);
-                Holderid = 0;                                                // Setting holder id = 0 as the object being populated are of type header view
+                Holderid = 0;
             }
         }
 
@@ -63,13 +64,19 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
     }
 
 
-    public MenuAdapter(String Titles[], String Name, Integer credits, URI image, Context myContext) {
-        this.mNavTitles = Titles;
-        this.name = Name;
-        this.creditis = credits + " Credits";
-        this.image = image;
-        this.myContext = myContext;
+    public MenuAdapter(String Titles[], UserDTO user, Context myContext) {
 
+        if (user != null) {
+            this.mNavTitles = Titles;
+            this.name = user.getDisplayName();
+            this.credits = user.getCredits() + " Credits";
+
+            if (user.getPhoto() != null) {
+                this.image = Helper.loadBitmap(user.getPhoto());
+            }
+        }
+
+        this.myContext = myContext;
     }
 
 
@@ -86,7 +93,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
         } else if (viewType == TYPE_HEADER) {
 
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false); //Inflating the layout
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.header, parent, false);
 
             ViewHolder vhHeader = new ViewHolder(v, viewType);
 
@@ -115,9 +122,9 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 //            holder.imageView.setImageResource(mIcons[position -1]);
         } else {
 
-//            holder.image.setImageResource(image);           // Similarly we set the resources for header view
+            holder.image.setImageBitmap(image);
             holder.Name.setText(name);
-            holder.credits.setText(creditis);
+            holder.credits.setText(credits);
         }
     }
 

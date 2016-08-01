@@ -8,20 +8,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.sinch.android.rtc.SinchError;
 import com.sinch.android.rtc.calling.Call;
-
-import org.w3c.dom.Text;
 
 import me.williandrade.R;
 import me.williandrade.fragments.IndexUserFragment;
 import me.williandrade.service.SinchService;
 import me.williandrade.util.BaseActivity;
 
-public class IndexActivity extends BaseActivity {
+public class IndexActivity extends BaseActivity implements SinchService.StartFailedListener {
 
     private FragmentTransaction fragmentTransaction;
 
@@ -99,6 +99,17 @@ public class IndexActivity extends BaseActivity {
         startActivity(mainActivity);
         finish();
         return;
+    }
+
+
+    @Override
+    public void onStartFailed(SinchError error) {
+        Toast.makeText(this, error.toString(), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onStarted() {
+        comeBackLogin();
     }
 
 

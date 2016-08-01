@@ -6,25 +6,26 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.sinch.android.rtc.AudioController;
 import com.sinch.android.rtc.PushPair;
 import com.sinch.android.rtc.calling.Call;
 import com.sinch.android.rtc.calling.CallEndCause;
 import com.sinch.android.rtc.video.VideoCallListener;
 import com.sinch.android.rtc.video.VideoController;
 
-import android.content.Intent;
+import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import me.williandrade.R;
@@ -39,15 +40,40 @@ public class IncomingCallScreenActivity extends BaseActivity {
     private String mCallId;
     private AudioPlayer mAudioPlayer;
 
+    private boolean mVideoViewsAdded = false;
+
+    private RelativeLayout incomingCallBackView;
+
+    private LinearLayout incomingTalkingView;
+    private TextView incomingTalkingName;
+    private RelativeLayout incomingCallLocalView;
+    private ImageView incomingCallTalkingVoiceBtn;
+    private ImageView incomingTalkingCallEndBtn;
+    private ImageView incomingCallTalkingVideoBtn;
+
+    private LinearLayout incomingView;
+    private TextView incomingName;
+    private TextView incomingFunction;
+    private ImageView incomingRefuseCall;
+    private ImageView incomingAcceptCall;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_incoming_call_screen);
 
-        ImageView answer = (ImageView) findViewById(R.id.acceptCallBtn);
-        answer.setOnClickListener(mClickListener);
-        ImageView decline = (ImageView) findViewById(R.id.refuseCallBtn);
-        decline.setOnClickListener(mClickListener);
+        incomingCallBackView = (RelativeLayout) findViewById(R.id.incomingCallBackView);
+        incomingTalkingView = (LinearLayout) findViewById(R.id.incomingTalkingView);
+        incomingTalkingName = (TextView) findViewById(R.id.incomingTalkingName);
+        incomingCallLocalView = (RelativeLayout) findViewById(R.id.incomingCallLocalView);
+        incomingCallTalkingVoiceBtn = (ImageView) findViewById(R.id.incomingCallTalkingVoiceBtn);
+        incomingTalkingCallEndBtn = (ImageView) findViewById(R.id.incomingTalkingCallEndBtn);
+        incomingCallTalkingVideoBtn = (ImageView) findViewById(R.id.incomingCallTalkingVideoBtn);
+        incomingView = (LinearLayout) findViewById(R.id.incomingView);
+        incomingName = (TextView) findViewById(R.id.incomingName);
+        incomingFunction = (TextView) findViewById(R.id.incomingFunction);
+        incomingRefuseCall = (ImageView) findViewById(R.id.incomingRefuseCall);
+        incomingAcceptCall = (ImageView) findViewById(R.id.incomingAcceptCall);
 
         mAudioPlayer = new AudioPlayer(this);
         mAudioPlayer.playRingtone();
@@ -59,13 +85,79 @@ public class IncomingCallScreenActivity extends BaseActivity {
     protected void onServiceConnected() {
         Call call = getSinchServiceInterface().getCall(mCallId);
         if (call != null) {
+
             call.addCallListener(new SinchCallListener());
 
             getUserByUid(mCallId);
 
+
+            incomingAcceptCall.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    answerClicked();
+                }
+            });
+
+            incomingRefuseCall.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    endCall();
+                }
+            });
+
+            incomingTalkingCallEndBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    endCall();
+                }
+            });
+
+            addVideoViews();
+
         } else {
             Log.e(TAG, "Started with invalid callId, aborting");
             finish();
+        }
+    }
+
+    private void addVideoViews() {
+        if (mVideoViewsAdded || getSinchServiceInterface() == null) {
+            return; //early
+        }
+
+        final VideoController videoController = getSinchServiceInterface().getVideoController();
+        if (videoController != null) {
+
+            try {
+                videoController.setCaptureDevicePosition(getFrontFacingCameraId());
+            } catch (Exception e) {
+                Log.d("Index Activity", "Error to get Camera");
+            }
+
+            incomingCallLocalView.addView(videoController.getLocalView());
+            incomingCallLocalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    videoController.toggleCaptureDevicePosition();
+                }
+            });
+
+            incomingCallBackView.addView(videoController.getRemoteView());
+            mVideoViewsAdded = true;
+        }
+    }
+
+    private void removeVideoViews() {
+        if (getSinchServiceInterface() == null) {
+            return; // early
+        }
+
+        VideoController vc = getSinchServiceInterface().getVideoController();
+        if (vc != null) {
+            incomingCallBackView.removeView(vc.getRemoteView());
+
+            incomingCallLocalView.removeView(vc.getLocalView());
+            mVideoViewsAdded = false;
         }
     }
 
@@ -75,28 +167,39 @@ public class IncomingCallScreenActivity extends BaseActivity {
         if (call != null) {
             call.answer();
 
-            VideoController vc = getSinchServiceInterface().getVideoController();
+            setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+            AudioController audioController = getSinchServiceInterface().getAudioController();
+            audioController.enableSpeaker();
 
-            if (vc != null) {
-                LinearLayout layout = (LinearLayout) findViewById(R.id.imageIncommingCallScreen);
-                layout.removeView(vc.getRemoteView());
-            }
+            incomingView.setAlpha(0);
+            incomingTalkingView.setAlpha(1);
 
-            Intent intent = new Intent(this, CallScreenActivity.class);
-            intent.putExtra(SinchService.CALL_ID, mCallId);
-            startActivity(intent);
+
         } else {
             finish();
         }
     }
 
-    private void declineClicked() {
+    private void endCall() {
         mAudioPlayer.stopRingtone();
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
         Call call = getSinchServiceInterface().getCall(mCallId);
         if (call != null) {
+            removeVideoViews();
             call.hangup();
         }
         finish();
+    }
+
+    private Integer getFrontFacingCameraId() throws CameraAccessException {
+        CameraManager cManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        for (final String cameraId : cManager.getCameraIdList()) {
+            CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
+            int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cOrientation == CameraCharacteristics.LENS_FACING_FRONT)
+                return Integer.parseInt(cameraId);
+        }
+        return null;
     }
 
     public void getUserByUid(final String uid) {
@@ -112,17 +215,15 @@ public class IncomingCallScreenActivity extends BaseActivity {
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     String json = ds.getValue(String.class);
-                    Log.d("UserDAO", json);
                     UserDTO user = gson.fromJson(json, UserDTO.class);
 
                     if (user.getUid().equals(uid)) {
-                        TextView name = (TextView) findViewById(R.id.nameIncommingCallScreen);
-                        name.setText(user.getDisplayName());
-
-                        TextView function = (TextView) findViewById(R.id.functionCallScreem);
-                        function.setText(user.getDoing());
-
+                        incomingName.setText(user.getDisplayName());
+                        incomingTalkingName.setText(user.getDisplayName());
+                        incomingFunction.setText(user.getDoing());
                     }
+
+
                 }
 
             }
@@ -142,7 +243,8 @@ public class IncomingCallScreenActivity extends BaseActivity {
             CallEndCause cause = call.getDetails().getEndCause();
             Log.d(TAG, "Call ended, cause: " + cause.toString());
             mAudioPlayer.stopRingtone();
-            finish();
+
+            endCall();
         }
 
         @Override
@@ -162,29 +264,8 @@ public class IncomingCallScreenActivity extends BaseActivity {
 
         @Override
         public void onVideoTrackAdded(Call call) {
-            VideoController vc = getSinchServiceInterface().getVideoController();
-
-            if (vc != null) {
-                LinearLayout layout = (LinearLayout) findViewById(R.id.imageIncommingCallScreen);
-                layout.addView(vc.getRemoteView());
-            } else {
-                Log.d("VEJAAAA", "Sem Video");
-            }
+            Log.d(TAG, "Video track added");
 
         }
     }
-
-    private OnClickListener mClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.acceptCallBtn:
-                    answerClicked();
-                    break;
-                case R.id.refuseCallBtn:
-                    declineClicked();
-                    break;
-            }
-        }
-    };
 }

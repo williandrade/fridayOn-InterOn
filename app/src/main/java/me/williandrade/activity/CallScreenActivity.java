@@ -1,5 +1,11 @@
 package me.williandrade.activity;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.sinch.android.rtc.AudioController;
 import com.sinch.android.rtc.PushPair;
 import com.sinch.android.rtc.calling.Call;
@@ -11,6 +17,7 @@ import com.sinch.android.rtc.video.VideoController;
 import android.content.Context;
 import android.graphics.Camera;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.Image;
@@ -34,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import me.williandrade.R;
+import me.williandrade.dto.UserDTO;
 import me.williandrade.service.SinchService;
 import me.williandrade.util.AudioPlayer;
 import me.williandrade.util.BaseActivity;
@@ -41,145 +49,80 @@ import me.williandrade.util.BaseActivity;
 public class CallScreenActivity extends BaseActivity {
 
     static final String TAG = CallScreenActivity.class.getSimpleName();
-    static final String CALL_START_TIME = "callStartTime";
-    static final String ADDED_LISTENER = "addedListener";
 
     private AudioPlayer mAudioPlayer;
-    private Timer mTimer;
-    private List<String> cameraIds;
-    private String cameraActual;
 
-    private UpdateCallDurationTask mDurationTask;
     private String mCallId;
-    private long mCallStart = 0;
-    private boolean mAddedListener = false;
-
     private boolean mVideoViewsAdded = false;
-    private TextView mCallDuration;
-    private TextView mCallState;
-    private TextView mCallerName;
 
-    private class UpdateCallDurationTask extends TimerTask {
 
-        @Override
-        public void run() {
-            CallScreenActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    updateCallDuration();
-                }
-            });
-        }
-    }
+    private RelativeLayout callScreenBackView;
 
-    @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putLong(CALL_START_TIME, mCallStart);
-        savedInstanceState.putBoolean(ADDED_LISTENER, mAddedListener);
-    }
+    private LinearLayout callTalkingView;
+    private TextView callTalkingName;
+    private RelativeLayout callLocalView;
+    private ImageView callTalkingVoiceBtn;
+    private ImageView callTalkingCallEndBtn;
+    private ImageView callTalkingVideoBtn;
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        mCallStart = savedInstanceState.getLong(CALL_START_TIME);
-        mAddedListener = savedInstanceState.getBoolean(ADDED_LISTENER);
-    }
+    private LinearLayout callView;
+    private TextView callName;
+    private TextView callFunction;
+    private ImageView callCancelBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call_screen);
 
-        mAudioPlayer = new AudioPlayer(this);
-//        mCallDuration = (TextView) findViewById(R.id.callDuration);
-        mCallerName = (TextView) findViewById(R.id.nameCallScreen);
-//        mCallState = (TextView) findViewById(R.id.callState);
-        ImageView endCallButton = (ImageView) findViewById(R.id.cancelCalllBtn);
+        callScreenBackView = (RelativeLayout) findViewById(R.id.callScreenBackView);
+        callTalkingView = (LinearLayout) findViewById(R.id.callTalkingView);
+        callTalkingName = (TextView) findViewById(R.id.callTalkingName);
+        callLocalView = (RelativeLayout) findViewById(R.id.callLocalView);
+        callTalkingVoiceBtn = (ImageView) findViewById(R.id.callTalkingVoiceBtn);
+        callTalkingCallEndBtn = (ImageView) findViewById(R.id.callTalkingCallEndBtn);
+        callTalkingVideoBtn = (ImageView) findViewById(R.id.callTalkingVideoBtn);
+        callView = (LinearLayout) findViewById(R.id.callView);
+        callName = (TextView) findViewById(R.id.callName);
+        callFunction = (TextView) findViewById(R.id.callFunction);
+        callCancelBtn = (ImageView) findViewById(R.id.callCancelBtn);
 
-        endCallButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                endCall();
-            }
-        });
+        mAudioPlayer = new AudioPlayer(this);
 
         mCallId = getIntent().getStringExtra(SinchService.CALL_ID);
-        if (savedInstanceState == null) {
-            mCallStart = System.currentTimeMillis();
-        }
     }
 
     @Override
     public void onServiceConnected() {
         Call call = getSinchServiceInterface().getCall(mCallId);
         if (call != null) {
-            if (!mAddedListener) {
-                call.addCallListener(new SinchCallListener());
-                mAddedListener = true;
+            call.addCallListener(new SinchCallListener());
+
+            getUserByUid(mCallId);
+
+            callCancelBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    endCall();
+                }
+            });
+
+            callTalkingCallEndBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    endCall();
+                }
+            });
+
+            try {
+                getSinchServiceInterface().getVideoController().setCaptureDevicePosition(getFrontFacingCameraId());
+            } catch (Exception e) {
+                Log.d("Index Activity", "Error to get Camera");
             }
+
         } else {
             Log.e(TAG, "Started with invalid callId, aborting.");
             finish();
-        }
-
-        updateUI();
-    }
-
-    private void updateUI() {
-        if (getSinchServiceInterface() == null) {
-            return; // early
-        }
-
-        Call call = getSinchServiceInterface().getCall(mCallId);
-        if (call != null) {
-            mCallerName.setText(call.getRemoteUserId());
-//            mCallState.setText(call.getState().toString());
-            if (call.getState() == CallState.ESTABLISHED) {
-                addVideoViews();
-            }
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mDurationTask.cancel();
-        mTimer.cancel();
-        removeVideoViews();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mTimer = new Timer();
-        mDurationTask = new UpdateCallDurationTask();
-        mTimer.schedule(mDurationTask, 0, 500);
-        updateUI();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // User should exit activity by ending call, not by going back.
-    }
-
-    private void endCall() {
-        mAudioPlayer.stopProgressTone();
-        Call call = getSinchServiceInterface().getCall(mCallId);
-        if (call != null) {
-            call.hangup();
-        }
-        finish();
-    }
-
-    private String formatTimespan(long timespan) {
-        long totalSeconds = timespan / 1000;
-        long minutes = totalSeconds / 60;
-        long seconds = totalSeconds % 60;
-        return String.format(Locale.US, "%02d:%02d", minutes, seconds);
-    }
-
-    private void updateCallDuration() {
-        if (mCallStart > 0) {
-//            mCallDuration.setText(formatTimespan(System.currentTimeMillis() - mCallStart));
         }
     }
 
@@ -188,40 +131,24 @@ public class CallScreenActivity extends BaseActivity {
             return; //early
         }
 
-        final VideoController vc = getSinchServiceInterface().getVideoController();
-        if (vc != null) {
-            FrameLayout localView = (FrameLayout) findViewById(R.id.localImageCallScreen);
-            localView.addView(vc.getLocalView());
-
-            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        final VideoController videoController = getSinchServiceInterface().getVideoController();
+        if (videoController != null) {
 
             try {
-
-                cameraIds = Arrays.asList(manager.getCameraIdList());
-                if (cameraIds.size() > 0) {
-                    vc.setCaptureDevicePosition(Integer.parseInt(cameraIds.get(0)));
-
-                    localView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            int size = cameraIds.size();
-                            int index = cameraIds.indexOf(cameraActual);
-
-                            int use = 0;
-
-                            if (index + 1 != size) {
-                                use = index + 1;
-                            }
-
-                            vc.setCaptureDevicePosition(Integer.parseInt(cameraIds.get(use)));
-                        }
-                    });
-                }
-            } catch (CameraAccessException e) {
+                videoController.setCaptureDevicePosition(getFrontFacingCameraId());
+            } catch (Exception e) {
+                Log.d("Index Activity", "Error to get Camera");
             }
 
-            LinearLayout view = (LinearLayout) findViewById(R.id.imageCallScreen);
-            view.addView(vc.getRemoteView());
+            callLocalView.addView(videoController.getLocalView());
+            callLocalView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    videoController.toggleCaptureDevicePosition();
+                }
+            });
+
+            callScreenBackView.addView(videoController.getRemoteView());
             mVideoViewsAdded = true;
         }
     }
@@ -233,13 +160,66 @@ public class CallScreenActivity extends BaseActivity {
 
         VideoController vc = getSinchServiceInterface().getVideoController();
         if (vc != null) {
-            LinearLayout view = (LinearLayout) findViewById(R.id.imageCallScreen);
-            view.removeView(vc.getRemoteView());
+            callScreenBackView.removeView(vc.getRemoteView());
 
-            FrameLayout localView = (FrameLayout) findViewById(R.id.localImageCallScreen);
-            localView.removeView(vc.getLocalView());
+            callLocalView.removeView(vc.getLocalView());
             mVideoViewsAdded = false;
         }
+    }
+
+    private void endCall() {
+        mAudioPlayer.stopRingtone();
+        Call call = getSinchServiceInterface().getCall(mCallId);
+        if (call != null) {
+            removeVideoViews();
+            call.hangup();
+        }
+        finish();
+    }
+
+    private Integer getFrontFacingCameraId() throws CameraAccessException {
+        CameraManager cManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        for (final String cameraId : cManager.getCameraIdList()) {
+            CameraCharacteristics characteristics = cManager.getCameraCharacteristics(cameraId);
+            int cOrientation = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cOrientation == CameraCharacteristics.LENS_FACING_FRONT)
+                return Integer.parseInt(cameraId);
+        }
+        return null;
+    }
+
+    public void getUserByUid(final String uid) {
+
+        final Gson gson = new Gson();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("logged");
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String json = ds.getValue(String.class);
+                    UserDTO user = gson.fromJson(json, UserDTO.class);
+
+                    if (user.getUid().equals(uid)) {
+                        callName.setText(user.getDisplayName());
+                        callTalkingName.setText(user.getDisplayName());
+                        callFunction.setText(user.getDoing());
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("UserDAO", databaseError.getMessage());
+            }
+        });
+
     }
 
     private class SinchCallListener implements VideoCallListener {
@@ -247,41 +227,30 @@ public class CallScreenActivity extends BaseActivity {
         @Override
         public void onCallEnded(Call call) {
             CallEndCause cause = call.getDetails().getEndCause();
-            Log.d(TAG, "Call ended. Reason: " + cause.toString());
-            mAudioPlayer.stopProgressTone();
+            Log.d(TAG, "Call ended, cause: " + cause.toString());
             setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
-            String endMsg = "Call ended: " + call.getDetails().toString();
-            Toast.makeText(CallScreenActivity.this, endMsg, Toast.LENGTH_LONG).show();
 
             endCall();
         }
 
         @Override
         public void onCallEstablished(Call call) {
-            Log.d(TAG, "Call established");
             mAudioPlayer.stopProgressTone();
-//            mCallState.setText(call.getState().toString());
             setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
             AudioController audioController = getSinchServiceInterface().getAudioController();
             audioController.enableSpeaker();
-            mCallStart = System.currentTimeMillis();
-            Log.d(TAG, "Call offered video: " + call.getDetails().isVideoOffered());
+
+            callTalkingView.setAlpha(1);
+            callView.setAlpha(0);
         }
 
         @Override
         public void onCallProgressing(Call call) {
-            Log.d(TAG, "Call progressing");
-//            VideoController vc = getSinchServiceInterface().getVideoController();
-
-//            View myPreview = vc.getLocalView();
-            LinearLayout layout = (LinearLayout) findViewById(R.id.imageCallScreen);
-//            layout.addView(vc.getRemoteView());
             mAudioPlayer.playProgressTone();
         }
 
         @Override
         public void onShouldSendPushNotification(Call call, List<PushPair> pushPairs) {
-            // Send a push through your push provider here, e.g. GCM
         }
 
         @Override
@@ -290,4 +259,5 @@ public class CallScreenActivity extends BaseActivity {
             addVideoViews();
         }
     }
+
 }

@@ -6,38 +6,114 @@
     android:background="#292A2E"
     tools:context=".activity.IncomingCallScreenActivity">
 
-
-    <!--<ImageView-->
-    <!--android:id="@+id/imageCallScreen"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:alpha="0.3"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--android:contentDescription="User Pic"-->
-    <!--android:src="@drawable/imguser" />-->
-
-    <LinearLayout
-        android:id="@+id/imageIncommingCallScreen"
+    <RelativeLayout
+        android:id="@+id/incomingCallBackView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.4"
-        android:orientation="horizontal"></LinearLayout>
+        android:orientation="horizontal"></RelativeLayout>
+
 
     <LinearLayout
+        android:id="@+id/incomingTalkingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:alpha="0"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="32dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.4"
+                    android:maxHeight="14dp"
+                    android:maxWidth="14dp"
+                    android:src="@drawable/live_icon" />
+
+                <TextView
+                    android:id="@+id/incomingTalkingName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tema"
+                    android:textColor="@color/md_white_1000" />
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/incomingCallLocalView"
+                android:layout_width="140dp"
+                android:layout_height="190dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="40dp"
+                android:elevation="5dp"
+                android:orientation="horizontal"></RelativeLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/incomingCallTalkingVoiceBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
+                android:src="@drawable/on_voice" />
+
+            <ImageView
+                android:id="@+id/incomingTalkingCallEndBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:clickable="true"
+                android:minHeight="80dp"
+                android:minWidth="80dp"
+                android:src="@drawable/off_call" />
+
+            <ImageView
+                android:id="@+id/incomingCallTalkingVideoBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
+                android:src="@drawable/on_video" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/incomingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="1"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:gravity="center|bottom"
             android:orientation="vertical">
 
 
             <TextView
-                android:id="@+id/nameIncommingCallScreen"
+                android:id="@+id/incomingName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-thin"
@@ -46,7 +122,7 @@
                 android:textSize="64dp" />
 
             <TextView
-                android:id="@+id/functionCallScreem"
+                android:id="@+id/incomingFunction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-thin"
@@ -64,18 +140,22 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/refuseCallBtn"
+                android:id="@+id/incomingRefuseCall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="80dp"
                 android:clickable="true"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
                 android:src="@drawable/refuse_call" />
 
             <ImageView
-                android:id="@+id/acceptCallBtn"
+                android:id="@+id/incomingAcceptCall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
+                android:minHeight="56dp"
+                android:minWidth="56dp"
                 android:src="@drawable/accept_call" />
         </LinearLayout>
 
